@@ -1,0 +1,54 @@
+#include <mpi.h>
+#include <stdio.h>
+
+#define N 4  
+
+int main(int argc, char** argv) {
+    int rank, size;
+    float dados_locais[N];
+    float media_local = 0.0;
+    float max_local = -1.0;
+
+    float medias[100];  
+    float maximos[100]; 
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
+    MPI_Comm_size(MPI_COMM_WORLD, &size); 
+
+    
+    for (int i = 0; i < N; i++) {
+        dados_locais[i] = rank * 10 + i;  // Ex: rank 1 -> 10,11,12,13
+        media_local += dados_locais[i];
+        if (dados_locais[i] > max_local)
+            max_local = dados_locais[i];
+    }
+
+    media_local /= N;
+
+    
+    MPI_Gather(&media_local, 1, MPI_FLOAT,
+               medias, 1, MPI_FLOAT,
+               0, MPI_COMM_WORLD);
+
+    
+    MPI_Gather(&max_local, 1, MPI_FLOAT,
+               maximos, 1, MPI_FLOAT,
+               0, MPI_COMM_WORLD);
+
+    
+    if (rank == 0) {
+        printf("Medias recebidas:\n");
+        for (int i = 0; i < size; i++) {
+            printf("Processo %d -> Média = %.2f\n", i, medias[i]);
+        }
+
+        printf("\nMáximos recebidos:\n");
+        for (int i = 0; i < size; i++) {
+            printf("Processo %d -> Máximo = %.2f\n", i, maximos[i]);
+        }
+    }
+
+    MPI_Finalize();
+    return 0;
+}
