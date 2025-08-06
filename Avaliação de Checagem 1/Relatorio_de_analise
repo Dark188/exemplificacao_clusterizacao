@@ -1,0 +1,23 @@
+Foi executando um programa MPI simples, que envolve comunicação entre processos para enviar e receber dados.
+Apareceram avisos e erros relacionados ao CMA (Contiguous Memory Allocator) e permissões restritivas do ptrace, além de mensagens do tipo:
+
+WARNING: Linux kernel CMA support was requested...
+Epoll ADD(4) on fd 31 failed... Bad file descriptor
+
+Esses erros indicam problemas na comunicação de memória e recursos do sistema, provavelmente por causa das configurações de segurança do Windows.O Windows, especialmente rodando MPI dentro do Windows Subsystem for Linux (WSL) ou em ambientes similares, pode bloquear certas chamadas de sistema como ptrace que o MPI usa para otimização de comunicação.
+O Firewall do Windows pode interferir nas conexões e permissões de comunicação entre os processos MPI, causando falhas ou restrições.
+O erro relacionado ao vader BTL (Byte Transfer Layer) mostra que o mecanismo de comunicação de memória compartilhada tentou usar CMA, mas foi bloqueado.Foi necessário configurar o Firewall do Windows para permitir as portas usadas pelo MPI, ou então desabilitar temporariamente o firewall para testar a comunicação.
+Adicionalmente, ajustar as configurações de segurança para permitir chamadas de sistema necessárias no ambiente onde o MPI está rodando.
+Essas alterações permitiram o MPI usar os mecanismos de comunicação mais eficientes e evitaram os erros de permissão.
+O código original envia um valor do processo 0 para o processo 1 usando MPI_Send e MPI_Recv.O uso do MPI_Gather foi apresentado como forma de coletar dados (médias, máximos) de vários processos para o processo 0.
+Foi destacado que a ordenação das médias ocorre no processo 0 porque somente ele tem todos os dados reunidos via MPI_Gather.
+Também foi apresentado como enviar mais de um dado (média e máximo) usando múltiplos MPI_Gather.
+
+*Ferramentas para Análise de Performance e Comportamento*
+-time: usado para medir o tempo total de execução do programa com diferentes números de processos (2, 4, 6).
+-htop ou top: usados para observar o uso da CPU, verificando se o uso está balanceado entre os processos MPI.
+-strace: para analisar chamadas de sistema feitas pelo programa, identificando bloqueios ou esperas.
+-taskset: para fixar processos em CPUs específicas, melhorando o desempenho evitando troca de contexto.
+-MPI_Wtime: para medir o tempo interno de execução em cada processo, identificando gargalos na comunicação ou computação.
+
+O problema inicial de permissão foi relacionado ao ambiente Windows e suas políticas de segurança, impactando o desempenho e funcionamento do MPI.A comunicação entre processos MPI funciona melhor com permissões adequadas e firewall configurado corretamente.O código MPI precisa ser projetado para garantir que dados que devem ser agregados (como médias e máximos) sejam coletados no processo raiz usando MPI_Gather.A análise do uso de CPU mostrou que o balanceamento de carga depende do design do programa e da sincronização entre processos.Ferramentas de profiling e análise como strace, taskset e MPI_Wtime são essenciais para entender onde o programa perde tempo e onde pode ser otimizado.
