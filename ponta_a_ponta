@@ -1,0 +1,112 @@
+![ponto_aponta](Captura de tela 2025-08-26 212925)
+
+# Topologia de Rede Ponta a Ponta (Full Mesh) com 5 Dispositivos
+
+Este documento descreve uma topologia de rede ponto a ponto (full mesh) com 5 dispositivos, incluindo:
+
+-  Diagrama visual em Mermaid
+-  Script atualizado para Mininet (sem controlador)
+-  Instruções para executar o ambiente
+
+---
+
+#  Diagrama da Topologia (Full Mesh) em Mermaid
+
+Cada dispositivo está conectado diretamente a todos os outros, formando uma malha completa:
+
+```mermaid
+graph LR
+    A[Dispositivo A]
+    B[Dispositivo B]
+    C[Dispositivo C]
+    D[Dispositivo D]
+    E[Dispositivo E]
+
+    A --- B
+    A --- C
+    A --- D
+    A --- E
+    B --- C
+    B --- D
+    B --- E
+    C --- D
+    C --- E
+    D --- E
+
+Script para Gerar a Topologia no Mininet (sem controlador)
+
+Salve o código abaixo em um arquivo chamado full_mesh_topology.py.
+
+#!/usr/bin/python
+
+from mininet.net import Mininet
+from mininet.cli import CLI
+from mininet.log import setLogLevel
+from itertools import combinations
+
+def full_mesh_topology():
+    # Não usamos controlador porque não há switches
+    net = Mininet(controller=None)
+
+    # Cria 5 hosts
+    hosts = []
+    for i in range(1, 6):
+        hosts.append(net.addHost(f'h{i}', ip=f'10.0.0.{i}/24'))
+
+    # Cria links ponto a ponto entre cada par de hosts (full mesh)
+    for h1, h2 in combinations(hosts, 2):
+        net.addLink(h1, h2)
+
+    # Inicia a rede
+    net.start()
+
+    print("Teste de ping entre todos os hosts:")
+    net.pingAll()
+
+    # Abre CLI para interagir manualmente
+    CLI(net)
+
+    # Finaliza a rede
+    net.stop()
+
+if __name__ == '__main__':
+    setLogLevel('info')
+    full_mesh_topology()
+
+# Como Executar
+
+Instale o Mininet
+ (caso ainda não tenha):
+
+sudo apt install mininet
+
+
+Salve o script como full_mesh_topology.py.
+
+Execute com permissões de superusuário:
+
+sudo python full_mesh_topology.py
+
+
+Dentro do terminal do Mininet, você pode usar comandos como:
+
+pingall         # Testa a conectividade entre todos os hosts
+h1 ping h2      # Testa o ping entre dois hosts específicos
+nodes           # Lista os nós da rede
+net             # Mostra os links da topologia
+
+
+Para sair do CLI do Mininet:
+
+exit
+
+* Resultado Esperado
+
+Cada host (h1 a h5) terá conectividade direta com os demais.
+
+O comando pingall deve retornar sucesso total (0% de perda).
+
+A topologia representa uma malha completa, útil para testes de redes ponto a ponto.
+
+
+
