@@ -1,0 +1,34 @@
+Relatório de Atividade – Deploy Flask Monte Carlo
+com Docker/Kubernetes
+1. Objetivo
+Realizar o deploy da aplicação Flask Monte Carlo em ambiente Linux Mint 22.2 utilizando Docker e
+Kubernetes, testar os endpoints fornecidos e adicionar uma modificação com novo endpoint
+(/montecarlo-square).
+2. Passos executados
+• Preparação do ambiente: ativação do ambiente virtual (venv), instalação e configuração inicial
+do Docker.
+• Tentativa de build da imagem com: sudo docker build -t flask-montecarlo:latest .
+• Execução do container com: sudo docker run -d -p 8080:8080 flask-montecarlo
+• Testes de endpoints com curl: /docker-info, /montecarlo/, /montecarlo-distributed/,
+/montecarlo-square/
+3. Problemas encontrados
+• Erro de permissão no Docker (usuário não fazia parte do grupo docker).
+• Imagem (dangling image) devido a build incompleto por espaço insuficiente.
+• Falta de espaço em disco (no space left on device).
+• Caminho incorreto do projeto (tentativa em diretório que não existia).
+4. O que deveria ocorrer
+• Build correto da imagem no diretório ~/clusterizacao_servidores_2025/checagem.
+• Execução da aplicação em container ativo na porta 8080.
+• Respostas JSON corretas para os endpoints testados.
+5. Soluções aplicadas
+• Adicionado usuário ao grupo docker para evitar necessidade de sudo.
+• Redirecionado diretório de dados do Docker para outra partição.
+• Limpeza de imagens, containers e volumes antigos para liberar espaço.
+• Correção de diretório alvo para o build do Docker.
+6. Próximos passos recomendados
+• Garantir espaço suficiente (≥ 2 GB livres) em
+/clusterizacao_servidores_2025/checagem/docker-data.
+• Refazer o build no diretório correto com sudo docker build -t flask-montecarlo:latest .
+• Rodar o container e validar endpoints.
+• Deploy no Kubernetes usando kube-flask-montecarlo.yaml.
+• Gerar evidências (prints/saídas) para anexar no relatório final.
